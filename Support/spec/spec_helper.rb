@@ -1,8 +1,5 @@
 dir = File.dirname(__FILE__)
 $LOAD_PATH.unshift "#{dir}/../../../rspec/lib" 
-require 'spec'
-require 'stringio'
-
 module Spec::Example::ExampleMethods
   def set_env
     root = File.expand_path(File.dirname(__FILE__) + '/../../../example_rails_app/vendor/plugins/rspec')
@@ -13,3 +10,5 @@ module Spec::Example::ExampleMethods
     ENV['TM_LINE_NUMBER'] = nil
   end
 end
+require 'stringio'
+#require File.dirname(__FILE__) + '/../lib/spec/mate'

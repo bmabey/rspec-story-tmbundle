@@ -7,6 +7,9 @@
 	<key>command</key>
 	<string>#!/usr/bin/env ruby
 
+puts $TMTOOLS
+exit
+
 #require ENV['TM_BUNDLE_SUPPORT'] + "/lib/story_helper"
 #TextMate::StoryHelper.new.goto_alternate_file(ENV['TM_PROJECT_DIRECTORY'], ENV['TM_FILEPATH'])
 
@@ -14,17 +17,17 @@
 
 require ENV['TM_BUNDLE_SUPPORT'] + "/lib/spec/mate/switch_command"
 Spec::Mate::SwitchCommand.new.go_to_twin(ENV['TM_PROJECT_DIRECTORY'], ENV['TM_FILEPATH'])</string>
+	<key>fallbackInput</key>
+	<string>document</string>
 	<key>input</key>
-	<string>none</string>
+	<string>selection</string>
 	<key>keyEquivalent</key>
-	<string>^$</string>
+	<string>^~$</string>
 	<key>name</key>
-	<string>Alternate File</string>
+	<string>Goto Current Step</string>
 	<key>output</key>
 	<string>showAsTooltip</string>
-	<key>scope</key>
-	<string>text.rspec.story, source.ruby.steps</string>
 	<key>uuid</key>
-	<string>6AD6154B-3EE8-43D0-B87F-6261C859AD07</string>
+	<string>8E056A1E-AF51-4CFB-949F-47B6BCE6E6EC</string>
 </dict>
 </plist>

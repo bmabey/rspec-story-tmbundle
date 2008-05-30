@@ -7,24 +7,19 @@
 	<key>command</key>
 	<string>#!/usr/bin/env ruby
 
-#require ENV['TM_BUNDLE_SUPPORT'] + "/lib/story_helper"
-#TextMate::StoryHelper.new.goto_alternate_file(ENV['TM_PROJECT_DIRECTORY'], ENV['TM_FILEPATH'])
-
-
-
-require ENV['TM_BUNDLE_SUPPORT'] + "/lib/spec/mate/switch_command"
-Spec::Mate::SwitchCommand.new.go_to_twin(ENV['TM_PROJECT_DIRECTORY'], ENV['TM_FILEPATH'])</string>
+require ENV['TM_BUNDLE_SUPPORT'] + "/lib/spec/mate/choose_step_file_command"
+Spec::Mate::ChooseStepFileCommand.new.list_files(ENV['TM_PROJECT_DIRECTORY'], ENV['TM_FILEPATH'])</string>
 	<key>input</key>
 	<string>none</string>
 	<key>keyEquivalent</key>
-	<string>^$</string>
+	<string>^$</string>
 	<key>name</key>
-	<string>Alternate File</string>
+	<string>Choose Step File</string>
 	<key>output</key>
 	<string>showAsTooltip</string>
 	<key>scope</key>
 	<string>text.rspec.story, source.ruby.steps</string>
 	<key>uuid</key>
-	<string>6AD6154B-3EE8-43D0-B87F-6261C859AD07</string>
+	<string>2BCE4864-D70A-4C52-B49D-FB3220130B74</string>
 </dict>
 </plist>

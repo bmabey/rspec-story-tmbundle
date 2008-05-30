@@ -10,8 +10,6 @@
   So that ${4:value}
 
   $0
-	
-		
 </string>
 	<key>name</key>
 	<string>Story</string>
