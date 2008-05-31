@@ -55,7 +55,7 @@ module Spec
           step_file_name = file_path.match(/([^\/]*)_steps.rb$/).captures.first
           content = <<-STEPS
 steps_for(:${1:#{step_file_name}}) do
-  #{proper_case_step_type} "${2:#{step_name}}" do
+  #{step_type} "${2:#{step_name}}" do
     $0
   end
 end
