@@ -6,4 +6,15 @@ Story: Basic
   
   Scenario: do some cool thingy yeah man
     Given Basic step (given)
-    And Basic regexp (given)
+    And another basic step
+    
+    When Basic when
+    
+    Then Basic then
+  
+  Scenario: do something else
+    Given Basic regexp (given)
+
+    When Basic when
+
+    Then Basic then

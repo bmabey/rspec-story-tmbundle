@@ -1,5 +1,9 @@
-steps_for(:path) do
+steps_for(:basic) do
   Given "Basic step (given)" do
+    Foo.should_not_error
+  end
+  
+  Given "another basic step" do
     
   end
   

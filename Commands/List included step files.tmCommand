@@ -7,14 +7,14 @@
 	<key>command</key>
 	<string>#!/usr/bin/env ruby
 
-require ENV['TM_BUNDLE_SUPPORT'] + "/lib/spec/mate/choose_step_file_command"
-Spec::Mate::ChooseStepFileCommand.new.list_files(ENV['TM_PROJECT_DIRECTORY'], ENV['TM_FILEPATH'])</string>
+require ENV['TM_BUNDLE_SUPPORT'] + "/lib/spec/mate/story/story_helper"
+Spec::Mate::Story::StoryHelper.new(ENV['TM_PROJECT_DIRECTORY'], ENV['TM_FILEPATH']).choose_steps_file</string>
 	<key>input</key>
 	<string>none</string>
 	<key>keyEquivalent</key>
 	<string>^$</string>
 	<key>name</key>
-	<string>Choose Step File</string>
+	<string>Choose Steps File</string>
 	<key>output</key>
 	<string>showAsTooltip</string>
 	<key>scope</key>

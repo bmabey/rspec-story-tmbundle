@@ -41,6 +41,8 @@ Caveats about running stories:
 		
 
 TODO:
+  * When in step file - if doing SHIFT-CTRL-OPTION-DOWN - go to first step that mat
+  
   * Make running a story more robust to work with any configuration.
   * Run All Stories command.
   * Run Selected Stories command.

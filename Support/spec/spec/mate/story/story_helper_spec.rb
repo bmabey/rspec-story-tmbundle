@@ -1,3 +1,4 @@
+require File.dirname(__FILE__) + '/../../../spec_helper'
 require File.dirname(__FILE__) + '/../../../../lib/spec/mate/story/story_helper'
 
 module Spec
@@ -5,28 +6,48 @@ module Spec
     module Story
       
       describe StoryHelper do
-        before(:all) do
-          #ENV['TM_PROJECT_DIRECTORY'] = File.expand_path(File.join(File.dirname(__FILE__), '../../../../fixtures'))
-          @sh = StoryHelper.new
-        end
-  
+        
         describe "#goto_alternate_file" do
           it "should determine alternate file for a story file" do
             #expect
-            ::Spec::Mate::TextMateHelper.should_receive(:open_or_prompt).with('stories/steps/foo_steps.rb')
+            ::Spec::Mate::TextMateHelper.should_receive(:open_or_prompt).with("#{project_root}/stories/steps/basic_steps.rb")
             #when
-            @sh.goto_alternate_file('stories/stories/foo.story')
+            StoryHelper.new(project_root, "#{project_root}/stories/stories/basic.story").goto_alternate_file
           end
 
           it "should determine alternate file for a story file (in sub-directory)" do
             #expect
-            ::Spec::Mate::TextMateHelper.should_receive(:open_or_prompt).with('stories/feature1/steps/foo_steps.rb')
+            ::Spec::Mate::TextMateHelper.should_receive(:open_or_prompt).with("#{project_root}/stories/feature1/steps/foo_steps.rb")
             #when
-            @sh.goto_alternate_file('stories/feature1/stories/foo.story')
+            StoryHelper.new(project_root, "#{project_root}/stories/feature1/stories/foo.story").goto_alternate_file
           end
         end
         
-                
+        # describe "#choose_steps_file" do
+        #   describe "when in a story file" do
+        #     it "should generate a list of steps from the story's runner file" do
+        #       
+        #       #when
+        #       StoryHelper.new(project_root, "#{project_root}/stories/feature1/stories/foo.story").choose_steps_file
+        #     end
+        #   end
+        # end
+        
+        
+        
+        describe "#find_step" do
+          it "should find a step that exists (when step begins with And)" do
+            
+            StoryHelper.new(project_root, "#{project_root}/stories/stories/basic.story").find_step('9').should ==
+                "#{project_root}/stories/steps/basic_steps.rb:6"
+          end
+          
+          # it "should find a step that exists" do
+          #   @sh.find_step(ENV['TM_PROJECT_DIRECTORY'], 'stories/stories/basic.story', '8').should ==
+          #       'stories/steps/basic_steps.rb:2'
+          # end
+        end
+        
       end
       
     end
