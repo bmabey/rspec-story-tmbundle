@@ -7,37 +7,25 @@ module Spec
     module Story
       
       class StoryHelper
-        def method_missing(method, args)
-          yield if block_given?
-        end
-        
-        def add_step(type, pattern)
-          step = Spec::Story::Step.new(pattern){raise "Step doesn't exist."}
-          @steps << {:file => @full_steps_file_path, :step => step, :type => type, 
-                      :pattern => pattern, :tag => @current_step_name,
-                      :line_number => caller[1].match(/:(\d+)/).captures.first.to_i}
-        end
-        
-        def Given(pattern)
-          add_step('given', pattern)
-        end
-        
-        def When(pattern)
-          add_step('when', pattern)
-        end
-        
-        def Then(pattern)
-          add_step('then', pattern)
-        end
-        
-        
         def initialize(project_root, full_file_path)
           @project_root = project_root
           @full_file_path = full_file_path
         end
         
         def goto_alternate_file
-          ::Spec::Mate::TextMateHelper.open_or_prompt(alternate_file(full_file_path))
+          alt_file_path = alternate_file(full_file_path)
+          if ::Spec::Mate::TextMateHelper.open_or_prompt(alt_file_path) == true
+            ::Spec::Mate::TextMateHelper.insert_text(default_content(alt_file_path))
+          end
+        end
+        
+        def goto_current_step(current_line_number)
+          return unless is_story_file?
+          
+          current_step_type, current_step_name = get_current_step_info(current_line_number)
+          if current_step_type
+            goto_new_or_current_step(current_step_type, current_step_name)
+          end
         end
         
         def choose_steps_file
@@ -48,41 +36,54 @@ module Spec
           end
         end
         
-        def find_step(line_number)
-          return unless is_story_file?
-          
-          current_step_type, current_step_name = get_current_step_info(line_number)
-          
-          if (matching_step = find_matching_step(current_step_type, current_step_name))
-            next_line = @step_file_contents[matching_step[:tag]].split("\n")[matching_step[:line_number]]
-            col_number = (md = next_line.match(/\s*($|[^\s])/)) ? md[0].length : 1
-            ::Spec::Mate::TextMateHelper.open_or_prompt(matching_step[:file], matching_step[:line_number]+1, col_number)
-          elsif goto_alternate_file
-            insert_new_step_snippet(current_step_type, current_step_name)
+      protected
+        attr_reader :full_file_path, :project_root
+        
+        def default_content(file_path)
+          case file_path
+          when /(story|txt)$/ then story_content(file_path)
+          when /_steps\.rb$/  then steps_content(file_path)
+          else ''
           end
         end
         
-      protected
-        attr_reader :full_file_path, :project_root
-        # def file_type(path)
-        #   if path =~ /\.(story|txt)$/
-        #     return 'story'
-        #   elsif path =~ /_steps\.rb$/
-        #     return 'steps'
-        #   elsif path =~ /stories\/(.*)\.rb$/
-        #     return 'story_runner'
-        #   end
-        #   'file'
-        # end
+        def story_content(file_path)
+          ::Spec::Mate::TextMateHelper.snippet_text_for('Story')
+        end
+
+        def steps_content(file_path, step_type = 'Given', step_name = 'condition')
+          step_file_name = file_path.match(/([^\/]*)_steps.rb$/).captures.first
+          content = <<-STEPS
+steps_for(:${1:#{step_file_name}}) do
+  #{proper_case_step_type} "${2:#{step_name}}" do
+    $0
+  end
+end
+STEPS
+        end
         
-        def insert_new_step_snippet(current_step_type, current_step_name)
-          snippet_text = "foo bar blah blah"
-          ::Spec::Mate::TextMateHelper.insert_text_into_current_file(snippet_text, 10, 2)
+        def goto_new_or_current_step(current_step_type, current_step_name)
+          if (matching_step = find_matching_step(current_step_type, current_step_name))
+            next_line = @step_file_contents[matching_step[:tag]].split("\n")[matching_step[:line_number]]
+            col_number = (md = next_line.match(/\s*($|[^\s])/)) ? md[0].length : 1
+            ::Spec::Mate::TextMateHelper.open_or_prompt(matching_step[:file], :line_number => matching_step[:line_number]+1, :column_number => col_number)
+          else
+            alt_file_path = alternate_file(full_file_path)
+            proper_case_step_type = "#{current_step_type[0...1].upcase}#{current_step_type[1..-1].downcase}"
+            
+            create_return_value = ::Spec::Mate::TextMateHelper.open_or_prompt(alt_file_path, :line_number => 2, :column_number => 3)
+            if create_return_value == true
+              ::Spec::Mate::TextMateHelper.insert_text(steps_content(alt_file_path, proper_case_step_type, current_step_name))
+            elsif create_return_value != false
+              text = ::Spec::Mate::TextMateHelper.snippet_text_for("#{proper_case_step_type} Step", current_step_name)
+              ::Spec::Mate::TextMateHelper.insert_text(text)
+            end
+          end
         end
         
         def get_current_step_info(line_number)
           line_index = line_number.to_i-1
-          content_lines = File.open(full_file_path){|f| f.read}.split("\n")
+          content_lines = File.read(full_file_path).split("\n")
           
           line_text = content_lines[line_index].strip
           return unless line_text.match(/^(given|when|then|and)(.*)/i)
@@ -95,8 +96,8 @@ module Spec
         end
         
         def find_matching_step(current_step_type, current_step_name)
-          # Match step
-          step_names = parse_steps(File.open(story_runner_file_for(full_file_path)){|f| f.read})
+          return unless File.file?(story_runner_file_for(full_file_path))
+          step_names = parse_steps(File.read(story_runner_file_for(full_file_path)))
           
           @steps = []
           @step_file_contents = {}
@@ -105,7 +106,7 @@ module Spec
             @current_step_name = step_name
             @full_steps_file_path = full_path_for_step_name(@current_step_name)
             
-            @step_file_contents[@current_step_name] = File.open(@full_steps_file_path){|f| f.read}
+            @step_file_contents[@current_step_name] = File.read(@full_steps_file_path)
             eval(@step_file_contents[@current_step_name])
           end
           
@@ -129,18 +130,12 @@ module Spec
           end
         end
         
-        
-        
-        
-        
-        
-        
         def related_step_files
           if is_story_file?(full_file_path)
             story_name = full_file_path.match(/\/([^\.\/]*)\.(story|txt)$/).captures.first
             steps_file_path = File.dirname(full_file_path) + "/../#{story_name}.rb"
             
-            parse_steps(File.open(steps_file_path){|f| f.read})
+            parse_steps(File.read(steps_file_path))
           else
             step_files = Dir["#{project_root}/stories/**/*_steps.rb"]
             step_files.collect{|f| f.match(/([^\/]*)_steps.rb$/).captures.first }.sort
@@ -164,7 +159,31 @@ module Spec
           file_path.match(/\.(story|txt)$/)
         end
         
-
+        
+        
+        def method_missing(method, args)
+          yield if block_given?
+        end
+        
+        def add_step(type, pattern)
+          step = Spec::Story::Step.new(pattern){raise "Step doesn't exist."}
+          @steps << {:file => @full_steps_file_path, :step => step, :type => type, 
+                      :pattern => pattern, :tag => @current_step_name,
+                      :line_number => caller[1].match(/:(\d+)/).captures.first.to_i}
+        end
+        
+        def Given(pattern)
+          add_step('given', pattern)
+        end
+        
+        def When(pattern)
+          add_step('when', pattern)
+        end
+        
+        def Then(pattern)
+          add_step('then', pattern)
+        end
+        
       end
       
     end

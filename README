@@ -41,6 +41,9 @@ Caveats about running stories:
 		
 
 TODO:
+  * POSSIBLE - Make SHIFT-CTRL-DOWN use goto_specific_step if on a step (no need for SHIFT-CTRIL-OPTION-DOWN)
+  * If in story file, and step file doesn't exist, and going to specific step - make snippets work correctly
+      - currently inserts new step and tag name of step file - steps_for(:Given "blah blah" ...)
   * When in step file - if doing SHIFT-CTRL-OPTION-DOWN - go to first step that mat
   
   * Make running a story more robust to work with any configuration.
