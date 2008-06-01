@@ -97,17 +97,17 @@ STEPS
         
         def find_matching_step(current_step_type, current_step_name)
           return unless File.file?(story_runner_file_for(full_file_path))
-          step_names = parse_steps(File.read(story_runner_file_for(full_file_path)))
+          step_group_tags = parse_step_group_tags(File.read(story_runner_file_for(full_file_path)))
           
           @steps = []
           @step_file_contents = {}
           
-          step_names.each do |step_name|
-            @current_step_name = step_name
-            @full_steps_file_path = full_path_for_step_name(@current_step_name)
+          step_group_tags.each do |step_group_tag|
+            @current_step_group_tag = step_group_tag
+            @full_steps_file_path = full_path_for_step_name(@current_step_group_tag)
             
-            @step_file_contents[@current_step_name] = File.read(@full_steps_file_path)
-            eval(@step_file_contents[@current_step_name])
+            @step_file_contents[@current_step_group_tag] = File.read(@full_steps_file_path)
+            eval(@step_file_contents[@current_step_group_tag])
           end
           
           # Find matching step
@@ -135,7 +135,7 @@ STEPS
             story_name = full_file_path.match(/\/([^\.\/]*)\.(story|txt)$/).captures.first
             steps_file_path = File.dirname(full_file_path) + "/../#{story_name}.rb"
             
-            parse_steps(File.read(steps_file_path))
+            parse_step_group_tags(File.read(steps_file_path))
           else
             step_files = Dir["#{project_root}/stories/**/*_steps.rb"]
             step_files.collect{|f| f.match(/([^\/]*)_steps.rb$/).captures.first }.sort
@@ -147,8 +147,9 @@ STEPS
           path.gsub(/\/stories\/([^\.\/]*)\.story$/, '/\1.rb')
         end
         
-        def parse_steps(content)
-          $1.gsub(':', '').split(',').collect{|s| s.strip} if content =~ /with_steps_for\s*\(?(.*)\)?\s?(do|\{)/
+        def parse_step_group_tags(content)
+          content.gsub!(/.*with_steps/m, 'with_steps')
+          eval(content).collect{|step_tag| step_tag.to_s}
         end
         
         def full_path_for_step_name(step_name)
@@ -160,6 +161,9 @@ STEPS
         end
         
         
+        def with_steps_for(*args)
+          return args
+        end
         
         def method_missing(method, args)
           yield if block_given?
@@ -168,7 +172,7 @@ STEPS
         def add_step(type, pattern)
           step = Spec::Story::Step.new(pattern){raise "Step doesn't exist."}
           @steps << {:file => @full_steps_file_path, :step => step, :type => type, 
-                      :pattern => pattern, :tag => @current_step_name,
+                      :pattern => pattern, :tag => @current_step_group_tag,
                       :line_number => caller[1].match(/:(\d+)/).captures.first.to_i}
         end
         
@@ -189,9 +193,3 @@ STEPS
     end
   end
 end
-
-
-
-
-
-
