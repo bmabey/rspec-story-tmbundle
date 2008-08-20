@@ -4,7 +4,7 @@
 <dict>
 	<key>fileTypes</key>
 	<array>
-		<string>.rb</string>
+		<string>story.rb</string>
 	</array>
 	<key>firstLineMatch</key>
 	<string>.*"stories".*"helper"</string>
