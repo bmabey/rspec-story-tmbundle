@@ -1,9 +1,20 @@
 Textmate Bundle for RSpec plain text stories
 
+
+How to install:
+mkdir -p ~/Library/Application\ Support/TextMate/Bundles/
+cd ~/Library/Application\ Support/TextMate/Bundles
+git clone git://github.com/bmabey/rspec-story-tmbundle.git RSpec\ Story.tmbundle
+In TextMate:
+From your drop down menu, select Bundles -> Bundle Editor -> Reload Bundles
+
+If you are doing ruby development with webrat you may also want the webrat bundle:
+http://github.com/bmabey/webrat-tmbundle/
+
 Features:
   * Color highlighting for plain text stories
     * Themes that have been modified to take advantage of this can be found in color_themes/
-  * Snippets for plain text stories and step files.  Include story keywords plus webrat snippets.
+  * Snippets for plain text stories and step files.
   * Predefined completions (escape key) for common story keywords.
   * Spellchecking turned on by default for the plaintext stories.
   * Run the current plain text story and display in HTML.  Clickable backtrace and all.
